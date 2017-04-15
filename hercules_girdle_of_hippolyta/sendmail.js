@@ -1,3 +1,4 @@
+se strict';
 const nodemailer = require('nodemailer');
 // var smtpTransport = require('nodemailer-smtp-transport');
 
@@ -5,16 +6,16 @@ let transporter = nodemailer.createTransport({
 	service: 'gmail',
 	auth: {
 		user: 'kimalvarez88@gmail.com',
-		pass: 'jmexpiczibvkezfr'
+		pass: 'dxumebeqngcylyut'
 	}
 });
 
 let mailOptions = {
 	from: ' "Kim Alvarez" <kimalvarez88@gmail.com>',
-	to: 'crenfrow@student.42.us.org',
+	to: 'kialvare@student.42.us.org',
 	subject: 'whoa',
-	text: 'cr3nfr0vv',
-	html: '<p>cr3nfr0vv</p>'
+	text: 'hello kialvare',
+	html: '<p>hello kialvare</p>'
 };
 
 transporter.sendMail(mailOptions, (error, info) => {
