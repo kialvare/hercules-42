@@ -12,22 +12,20 @@ let transporter = nodemailer.createTransport(smtpTransport({
 	//}
 }));
 
-//var img = require("fs").readFileSync("food-05.jpg");
+// var img = require("fs").readFileSync("food-05.jpg");
 
 let mailOptions = {
 	from: ' "Kim Alvarez" <kimalvarez88@gmail.com>',
 	to: 'kimalvarez88@gmail.com',
-	subject: 'butts',
+	subject: 'subject',
 	//text: 'sending this with all the smtp stuff.',
-	html: '<p>ahh</p>',
-	//attachments: [
-	//{
+	html: '<p>text</p>',
+	//attachments: [{
 	//	filename: 'food-05.jpg',
 	//	path: '~/Downloads/food-05.jpg',
-	//	contents: img,
+	//	contents: new Buffer(
 	//	cid: cid
-	//}
-	//] 
+	//}] 
 };
 
 transporter.sendMail(mailOptions, (error, info) => {
