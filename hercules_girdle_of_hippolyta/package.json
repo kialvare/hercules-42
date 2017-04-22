@@ -1,0 +1,14 @@
+{
+  "name": "hercules_girdle_of_hippolyta",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sendmail.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "nodemailer": "^4.0.1"
+  }
+}
