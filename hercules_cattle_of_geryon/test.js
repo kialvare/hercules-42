@@ -1,13 +1,19 @@
 var http = require('http');
-var request = require('request');
 var bl = require('bl');
+if (process.argv.length == 2)
+	return console.log("Usage: node siege.js [-r reps] [-c users] [-d delay] [http:// url]")
 
-var concurrentRequests = process.argv[3]
+var concurrentRequests = 0
 var requestsInProgress = 0
-var requestsSoFar = 0
-var totalRequests = 100
-var totalRequestsSoFar = 
+var totalRequestsToMake = 0
+var totalRequestsSoFar = 0
+var totalRequestsCompleted = 0
 var maxDelay = 300
+
+var totalDuration = 0
+var totalSize = 0
+var successCount = 0
+var failCount = 0
 
 for (var i = 2; i < process.argv.length; i++) {
 	var arg = process.argv[i]
@@ -30,29 +36,46 @@ for (var i = 2; i < process.argv.length; i++) {
 }
 
 if (concurrentRequests == 1) {
-	console.log('Will send', totalRequestsToMake, 'requests with', concurrentRequests,
-	'concurrent user and a maximum delay of', maxDelay)
+	console.log("Sending " +  totalRequestsToMake + " requests with " +  concurrentRequests +
+	" concurrent user and a maximum delay of " +  maxDelay)
 } else {
-	console.log('Will send', totalRequestsToMake, 'requests with', concurrentRequests,
-	'concurrent users and a maximum delay of', maxDelay)
+	console.log("Sending " + totalRequestsToMake + " requests with " + concurrentRequests +
+	" concurrent users and a maximum delay of " + maxDelay)
 }
 
 
-function makeRequest() {
-	requestsSoFar += 1
+function request(number) {
 	requestsInProgress += 1
-
-	var randomDelay = Math.random() * maxDelay
 	var startTime = Date.now()
+	var url = process.argv[5]
+	if (url == undefined)
+		return console.log("Missing url")
 
-	http.get(process.argv[4], function (response) {
+	console.log('> Request', number, 'started')
+
+	http.get(url, function (response) {
 		response.pipe(bl(function(err, data) {
 			requestsInProgress -= 1
-				if (err)
-					return console.error(err);
+			totalRequestsCompleted += 1
+			totalDuration += Date.now() - startTime
+			var contentLength = response.headers['content-length']
+			totalSize += parseInt(contentLength)
+
+			if (response.statusCode == 200) {
+				successCount += 1
+			} else
+				failCount += 1
+
+			console.log('Request', number, 'done')
+
+			start()
 		}))
 	})
 }
+
+process.on('uncaughtException', function (err) {
+	console.log(err);
+});
 
 function start() {
 	if (requestsInProgress >= concurrentRequests) {
@@ -67,32 +90,32 @@ function start() {
 		start()
 	} else if (totalRequestsCompleted >= totalRequestsToMake) {
 		console.log('Done!')
-		//benchmarks()
+		benchmark()
 	}
 }
 
+var lineLength = 40
+
+function printLine(title, value, units = '') {
+	title = title.toString()
+	value = value.toString()
+
+	var paddingLength = lineLength - title.length - value.length
+
+	console.log(title + ' '.repeat(paddingLength) + value + ' ' + units)
+}
+
+function benchmark() {
+	printLine('Transactions', totalRequestsCompleted, 'hits')
+	printLine('Elapsed time', (totalDuration/1000).toFixed(2), 'secs')
+	printLine('Concurrency', (totalRequestsCompleted/totalDuration).toFixed(2))
+	printLine('Successful transactions', failCount)
+	// printLine('Availability' (successCount/totalRequestsToMake*100).toFixed(2), '%')
+	// printLine('Data transferred', (totalSize/(1024*1024)).toFixed(2), 'MB')
+	// console.log(totalSize/(1024*1024))
+	// printLine('Transaction rate', '0', 'MB/sec')
+	// printLine('Longest transaction', '0')
+	// printLine('Shortes transaction', '0')
+}
+
 start()
-
-//function benchmarks() {
-	//console.log("The server is now under siege...");
-	//console.log("Lifting the server siege...");
-	//console.log("Transactions: " + i); // How many times it ran
-	//console.log("Availability: "); // How available the server is
-	//console.log("Elapsed time: "); // How much time it took
-	//console.log("Data transferred: "); //done me thinks
-	//console.log("Response time: ");
-	//console.log("Transaction rate: ");
-	//console.log("Throughput: ");
-	//console.log("Concurrency: ");
-	//console.log("Successful Transactions: ");
-	//console.log("Failed Transactions: ");
-	//console.log("Longest Transactions: ");
-	//console.log("Shortest Transactions: ");
-//}
-
-//process.on('SIGINT', function() {
-//    console.log("Caught interrupt signal");
-
-//	    if (i_should_exit)
-//		        process.exit();
-//});
